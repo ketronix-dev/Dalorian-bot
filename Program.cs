@@ -21,70 +21,84 @@ namespace Dalorian_Bot
         static ITelegramBotClient bot = new TelegramBotClient("");
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            await botClient.SendTextMessageAsync(
-                -784948334,
-                Newtonsoft.Json.JsonConvert.SerializeObject(update, Formatting.Indented));
-            /*DbUtils.CreateTableOrNo();*/
-            if(update.Type == UpdateType.Message)
+            try
             {
-                var message = update.Message;
-                
-                if (message.Text == "/mykarma" || message.Text == "/mykarma@" + bot.GetMeAsync().Result.Username)
+                if (update.Type == UpdateType.Message)
                 {
-                    Commands.MyKarmaCommand(botClient, update);
-                }
-                
-                if (message.Text == "/topkarma" || message.Text == "/topkarma@" + bot.GetMeAsync().Result.Username)
-                {
-                    Commands.TopKarmaCommans(botClient, update);
-                }
-                
-                if (message.Text == "+" /*|| message.Text.Contains("Спасибо") != null || message.Text.Contains("Спс")  ||
-                    message.Text.Contains("Сяп") || message.Text.Contains("От души")*/)
-                {
-                    Commands.AddKarmaCommand(botClient, update);
-                }
+                    var message = update.Message;
 
-
-                if (message.Chat.Type == ChatType.Private)
-                {
-                    Commands.PrivateChatCommands(botClient, update);
-                }
-
-                /*foreach (var VARIABLE in message.NewChatMembers)
-                {
-                    
-                }*/
-
-                if (message.NewChatMembers != null)
-                {
-                    bool isIam = false;
-
-                    foreach (var user in message.NewChatMembers)
+                    if (message.Text == "/mykarma" || message.Text == "/mykarma@" + bot.GetMeAsync().Result.Username)
                     {
-                        if (user.Id == botClient.GetMeAsync().Id)
+                        Commands.MyKarmaCommand(botClient, update);
+                    }
+
+                    if (message.Text == "/topkarma" || message.Text == "/topkarma@" + bot.GetMeAsync().Result.Username)
+                    {
+                        Commands.TopKarmaCommans(botClient, update);
+                    }
+
+                    if (message.Text ==
+                        "+" /*|| message.Text.Contains("Спасибо") != null || message.Text.Contains("Спс")  ||
+                    message.Text.Contains("Сяп") || message.Text.Contains("От души")*/)
+                    {
+                        Commands.AddKarmaCommand(botClient, update);
+                    }
+
+
+                    if (message.Chat.Type == ChatType.Private)
+                    {
+                        Commands.PrivateChatCommands(botClient, update);
+                    }
+
+                    /*foreach (var VARIABLE in message.NewChatMembers)
+                    {
+                        
+                    }*/
+
+                    if (message.NewChatMembers != null)
+                    {
+                        bool isIam = false;
+
+                        foreach (var user in message.NewChatMembers)
                         {
-                            isIam = true;
+                            if (user.Id == botClient.GetMeAsync().Id)
+                            {
+                                isIam = true;
+                            }
+                        }
+
+                        if (message.Chat.Id != -784948334 || isIam)
+                        {
+                            await botClient.SendTextMessageAsync(
+                                message.Chat,
+                                "Здарова кожаные. Я теперь это. Вобщем. Буду вам карму считать. Но я постепенно учусь," +
+                                " и скоро буду уметь многое. Но пока что я сяду, и буду тихо пить чай, наблюдая за вами..." +
+                                "\n \n P.S. Вы это, админа мне выдайте, а то я ваших сообщений не вижу.");
+                        }
+                        else if (message.Chat.Id == -784948334 && isIam)
+                        {
+                            await botClient.SendTextMessageAsync(
+                                message.Chat,
+                                "Я успешно добавлен в чат лога.");
                         }
                     }
-                    
-                    if (message.Chat.Id != -784948334 || isIam)
-                    {
-                        await botClient.SendTextMessageAsync(
-                            message.Chat,
-                            "Здарова кожаные. Я теперь это. Вобщем. Буду вам карму считать. Но я постепенно учусь," +
-                            " и скоро буду уметь многое. Но пока что я сяду, и буду тихо пить чай, наблюдая за вами..." +
-                            "\n \n P.S. Вы это, админа мне выдайте, а то я ваших сообщений не вижу.");
-                    }
-                    else if(message.Chat.Id == -784948334 && isIam)
-                    {
-                        await botClient.SendTextMessageAsync(
-                            message.Chat,
-                            "Я успешно добавлен в чат лога.");
-                    }
                 }
+
             }
-        }
+            catch (Exception e)
+            {
+                await botClient.SendTextMessageAsync(
+                    -784948334,
+                    Newtonsoft.Json.JsonConvert.SerializeObject(update, Formatting.Indented));
+                await botClient.SendTextMessageAsync(
+                    -784948334,
+                    e.Message +"\n \n"+e.InnerException);
+                Console.WriteLine(e);
+                throw;
+            }
+            
+            /*DbUtils.CreateTableOrNo();*/
+            }
 
         public static async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
