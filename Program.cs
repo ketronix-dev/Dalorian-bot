@@ -67,7 +67,7 @@ namespace Dalorian_Bot
                             }
                         }
 
-                        if (message.Chat.Id != -784948334 || isIam)
+                        if (message.Chat.Id != -784948334 && isIam)
                         {
                             await botClient.SendTextMessageAsync(
                                 message.Chat,
